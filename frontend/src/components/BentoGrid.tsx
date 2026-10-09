@@ -29,7 +29,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ metrics }) => {
 
         <div className="my-6">
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight flex items-baseline space-x-2">
-            <span>{metrics.total_value_locked.toLocaleString()}</span>
+            <span>{(metrics?.total_value_locked ?? 0).toLocaleString()}</span>
             <span className="text-xl sm:text-2xl text-emerald-400 font-medium">USDC / XLM</span>
           </h2>
           <p className="text-sm text-gray-400 mt-2 bux-serif-accent">
@@ -38,7 +38,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ metrics }) => {
         </div>
 
         <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
-          <span>Active Escrow Streams: <strong className="text-white">{metrics.active_streams_count}</strong></span>
+          <span>Active Escrow Streams: <strong className="text-white">{metrics?.active_streams_count ?? 0}</strong></span>
           <span className="flex items-center text-emerald-400 font-medium">
             Sub-cent Stellar Fees <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
           </span>
@@ -101,17 +101,17 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ metrics }) => {
       <div className="bux-card p-6 md:col-span-2 lg:col-span-4 grid grid-cols-2 sm:grid-cols-4 gap-4 bg-gradient-to-r from-surface-card to-[#0e1626]">
         <div>
           <span className="text-xs text-gray-400 uppercase tracking-wider">Total Streams</span>
-          <p className="text-2xl font-bold text-white mt-1">{metrics.total_streams_count}</p>
+          <p className="text-2xl font-bold text-white mt-1">{metrics?.total_streams_count ?? 0}</p>
           <span className="text-[11px] text-emerald-400">On-Chain Registered</span>
         </div>
         <div>
           <span className="text-xs text-gray-400 uppercase tracking-wider">Total Streamed</span>
-          <p className="text-2xl font-bold text-white mt-1">{metrics.total_value_streamed.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-white mt-1">{(metrics?.total_value_streamed ?? 0).toLocaleString()}</p>
           <span className="text-[11px] text-gray-400">Tokens In Flight</span>
         </div>
         <div>
           <span className="text-xs text-gray-400 uppercase tracking-wider">Total Claimed</span>
-          <p className="text-2xl font-bold text-emerald-400 mt-1">{metrics.total_value_claimed.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-emerald-400 mt-1">{(metrics?.total_value_claimed ?? 0).toLocaleString()}</p>
           <span className="text-[11px] text-emerald-500/80">Withdrawn by Beneficiaries</span>
         </div>
         <div>

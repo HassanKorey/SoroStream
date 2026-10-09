@@ -95,7 +95,20 @@ export async function fetchMetrics(): Promise<ProtocolMetrics> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/metrics`, { cache: "no-store" });
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      return {
+        total_streams_count: Number(data.total_streams ?? data.total_streams_count ?? 0),
+        active_streams_count: Number(data.active_streams ?? data.active_streams_count ?? 0),
+        completed_streams_count: Number(data.completed_streams ?? data.completed_streams_count ?? 0),
+        cancelled_streams_count: Number(data.cancelled_streams ?? data.cancelled_streams_count ?? 0),
+        total_value_locked: Number(data.tvl_formatted ?? data.total_value_locked ?? 0),
+        total_value_streamed: Number(
+          data.tvl_formatted != null
+            ? data.tvl_formatted + (data.total_claimed_formatted ?? 0)
+            : data.total_value_streamed ?? 0
+        ),
+        total_value_claimed: Number(data.total_claimed_formatted ?? data.total_value_claimed ?? 0),
+      };
     }
   } catch (err) {
     console.warn("Backend metrics offline, using calculated values:", err);
@@ -116,7 +129,10 @@ export async function fetchStreams(): Promise<StreamRecord[]> {
     const res = await fetch(`${API_BASE_URL}/api/streams`, { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.streams) && data.streams.length > 0) {
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+      if (Array.isArray(data?.streams) && data.streams.length > 0) {
         return data.streams;
       }
     }

@@ -135,8 +135,9 @@ export default function Dashboard() {
             <tbody className="divide-y divide-white/5 text-gray-300">
               {filteredStreams.map((s) => {
                 const divisor = Math.pow(10, s.token_decimals || 7);
-                const total = s.total_amount / divisor;
-                const claimed = s.claimed_amount / divisor;
+                const total = (s.total_amount ?? 0) / divisor;
+                const claimed = (s.claimed_amount ?? 0) / divisor;
+                const recipientStr = s.recipient || "";
 
                 return (
                   <tr key={s.id} className="hover:bg-white/[0.02] transition-colors group">
@@ -162,14 +163,16 @@ export default function Dashboard() {
                       )}
                     </td>
                     <td className="p-3.5 bux-mono text-gray-400">
-                      {s.recipient.slice(0, 6)}...{s.recipient.slice(-6)}
+                      {recipientStr.length > 12
+                        ? `${recipientStr.slice(0, 6)}...${recipientStr.slice(-6)}`
+                        : recipientStr}
                     </td>
-                    <td className="p-3.5 font-semibold text-white">{s.token_symbol}</td>
+                    <td className="p-3.5 font-semibold text-white">{s.token_symbol || "USDC"}</td>
                     <td className="p-3.5 text-white font-medium">
-                      {total.toLocaleString()} {s.token_symbol}
+                      {(total ?? 0).toLocaleString()} {s.token_symbol || "USDC"}
                     </td>
                     <td className="p-3.5 text-emerald-400">
-                      {claimed.toLocaleString()} {s.token_symbol}
+                      {(claimed ?? 0).toLocaleString()} {s.token_symbol || "USDC"}
                     </td>
                     <td className="p-3.5">
                       {s.revocable ? (
