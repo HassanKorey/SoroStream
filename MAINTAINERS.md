@@ -1,6 +1,6 @@
-# Maintainer Governance & Triage Policy
+# Maintainer Governance & Review Policy
 
-This document outlines the governance guidelines and review responsibilities for SoroStream maintainers and Drips Wave coordinators.
+This document outlines the governance guidelines and review responsibilities for SoroStream core maintainers.
 
 ---
 
@@ -17,11 +17,10 @@ This document outlines the governance guidelines and review responsibilities for
 1. **Branch Protection Rules**:
    - The `main` branch is protected against direct pushes.
    - All code enters `main` exclusively through Pull Requests with at least 1 approving maintainer review.
-   - All CI quality gates (`cargo test`, `clippy`, `ruff`, `mypy`, `pytest`, `sdk build`) must pass.
-2. **Issue Triage & Drips Point Allocations**:
-   - Trivial Issues: 100 points
-   - Medium Issues: 150 points
-   - High Issues: 200 points
+   - All CI quality gates (`cargo test`, `clippy`, `ruff`, `mypy`, `pytest`, `sdk build`, `frontend build`) must pass.
+2. **Issue Triage**:
+   - Review incoming bug reports and feature requests.
+   - Ensure labels and milestones are applied consistently.
 3. **Smart Contract Change Approvals**:
    - Any modifications to `contracts/vesting_stream/src/lib.rs` must include accompanying unit tests in `test.rs` and security vector simulations in `backend/tests/test_security_vectors.py`.
    - Breaking state changes require migration strategies for persistent `DataKey` storage.

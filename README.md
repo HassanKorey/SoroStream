@@ -28,14 +28,14 @@
 
 ```mermaid
 graph TD
-    A[Sender / DAO Treasury] -->|create_stream / batch| B[SoroStream Contract on Soroban]
-    B -->|Locks SAC Escrow| C[Token Vault SEP-41]
-    D[Recipient / Beneficiary] -->|withdraw claimable| B
+    A["Sender / DAO Treasury"] -->|create_stream / batch| B["SoroStream Contract on Soroban"]
+    B -->|Locks SAC Escrow| C["Token Vault (SEP-41)"]
+    D["Recipient / Beneficiary"] -->|withdraw claimable| B
     B -->|Transfers unlocked tokens| D
-    B -->|Publishes Events| E[Soroban RPC]
-    E -->|Real-time Ingestion| F[FastAPI Indexer Backend]
-    F -->|SQLite Cache & Webhooks| G[SoroStream BUX Dashboard]
-    H[@sorostream/sdk] -->|Client Calculations & RPC| G
+    B -->|Publishes Events| E["Soroban RPC"]
+    E -->|Real-time Ingestion| F["FastAPI Indexer Backend"]
+    F -->|SQLite Cache & Webhooks| G["SoroStream Web Dashboard"]
+    H["TypeScript Client SDK"] -->|Client Calculations & RPC| G
 ```
 
 ---
@@ -78,8 +78,6 @@ SoroStream/
 │   └── src/styles/                # Glassmorphic Tailwind theme
 ├── scripts/
 │   └── deploy_testnet.sh          # Automated testnet deploy & Friendbot funding
-├── drips-issues/
-│   └── WAVE10_ISSUES.md           # 12 pre-scoped Drips Wave contributor issues
 ├── CONTRIBUTING.md
 ├── MAINTAINERS.md
 ├── SECURITY.md
@@ -120,17 +118,6 @@ Deploy to Stellar Testnet and auto-fund via Friendbot:
 ```bash
 ./scripts/deploy_testnet.sh
 ```
-
----
-
-## 🏆 Drips Wave Contributor Issues (12 Issues)
-
-SoroStream is pre-configured with 12 structured issues mapped to Drips Wave complexity tiers:
-- **Trivial (100 pts)**: OpenAPI Metadata (#1), Contract Getter Tests (#2), Tailwind Polishing (#3).
-- **Medium (150 pts)**: Testnet Deployment Script (#4), Real-Time Ticker (#5), Event Handler (#6), Freighter Helper (#7), Webhook Worker (#11).
-- **High (200 pts)**: Multi-Token SAC Verification (#8), Security Attack Suite (#9), TypeScript SDK (#10), CSV Batch Importer (#12).
-
-See [drips-issues/WAVE10_ISSUES.md](drips-issues/WAVE10_ISSUES.md) for full issue criteria.
 
 ---
 

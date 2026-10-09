@@ -1,6 +1,6 @@
 # Contributing to SoroStream
 
-Thank you for your interest in contributing to **SoroStream**! This repository is organized for community contributors participating in the **Drips Wave** program as well as open-source Stellar/Soroban builders.
+Thank you for your interest in contributing to **SoroStream**! This repository is organized for open-source Stellar/Soroban builders and community contributors.
 
 ---
 
@@ -27,7 +27,6 @@ Thank you for your interest in contributing to **SoroStream**! This repository i
 - `sdk/`: Official TypeScript Client SDK (`@sorostream/sdk`).
 - `frontend/`: Next.js Web3 application with BUX-inspired glassmorphic dark theme.
 - `scripts/`: Testnet deployment, account funding, and automation tools.
-- `drips-issues/`: Pre-scoped contributor issues definition.
 
 ---
 
@@ -64,11 +63,11 @@ npm test
 
 ## 🎯 Contributor Workflow
 
-1. Fork the repository and create your branch from `main` (`feature/issue-number-title`).
+1. Fork the repository and create your branch from `main` (`feature/your-feature-name`).
 2. Adhere to conventional commit formats:
    - `feat(...)`: New feature or capability
    - `fix(...)`: Bug fix
    - `test(...)`: Adding or updating test suites
    - `docs(...)`: Documentation updates
 3. Submit a Pull Request targeting `main`. Ensure all CI checks pass.
-4. Maintainers will review and award Drips Wave points upon merge!
+4. Maintainers will review and provide feedback on your contribution!
