@@ -1,10 +1,10 @@
 #![no_std]
 #![allow(clippy::too_many_arguments)]
 
+use soroban_sdk::token;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, symbol_short, Address, Env, Vec,
 };
-use soroban_sdk::token;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -24,25 +24,25 @@ pub enum Error {
 #[derive(Clone)]
 #[contracttype]
 pub enum DataKey {
-    Admin,                      // Contract administrator address
-    StreamCounter,              // Auto-incrementing u64 stream ID counter
-    Stream(u64),                // Persistent storage key for stream records
+    Admin,         // Contract administrator address
+    StreamCounter, // Auto-incrementing u64 stream ID counter
+    Stream(u64),   // Persistent storage key for stream records
 }
 
 #[derive(Clone, Debug, PartialEq)]
 #[contracttype]
 pub struct StreamRecord {
-    pub id: u64,                // Unique stream identifier
-    pub sender: Address,        // Stream creator / funding address
-    pub recipient: Address,     // Beneficiary address entitled to claim funds
-    pub token: Address,         // Soroban Asset Contract (SAC) address
-    pub total_amount: i128,     // Total tokens locked in stroops (1 XLM = 10^7 stroops)
-    pub claimed_amount: i128,   // Accumulated tokens already withdrawn
-    pub start_time: u64,        // Stream commencement timestamp (seconds)
-    pub cliff_time: u64,        // Timestamp prior to which 0 tokens are claimable
-    pub end_time: u64,          // Timestamp at which 100% of tokens are unlocked
-    pub revocable: bool,        // Flag indicating whether sender can cancel stream
-    pub is_cancelled: bool,     // Stream cancellation status flag
+    pub id: u64,              // Unique stream identifier
+    pub sender: Address,      // Stream creator / funding address
+    pub recipient: Address,   // Beneficiary address entitled to claim funds
+    pub token: Address,       // Soroban Asset Contract (SAC) address
+    pub total_amount: i128,   // Total tokens locked in stroops (1 XLM = 10^7 stroops)
+    pub claimed_amount: i128, // Accumulated tokens already withdrawn
+    pub start_time: u64,      // Stream commencement timestamp (seconds)
+    pub cliff_time: u64,      // Timestamp prior to which 0 tokens are claimable
+    pub end_time: u64,        // Timestamp at which 100% of tokens are unlocked
+    pub revocable: bool,      // Flag indicating whether sender can cancel stream
+    pub is_cancelled: bool,   // Stream cancellation status flag
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -76,7 +76,9 @@ impl VestingStreamContract {
             return Err(Error::AlreadyInitialized);
         }
         env.storage().persistent().set(&DataKey::Admin, &admin);
-        env.storage().persistent().set(&DataKey::StreamCounter, &0u64);
+        env.storage()
+            .persistent()
+            .set(&DataKey::StreamCounter, &0u64);
         Ok(())
     }
 
@@ -129,7 +131,9 @@ impl VestingStreamContract {
             .get(&DataKey::StreamCounter)
             .unwrap_or(0u64);
         count += 1;
-        env.storage().persistent().set(&DataKey::StreamCounter, &count);
+        env.storage()
+            .persistent()
+            .set(&DataKey::StreamCounter, &count);
 
         let stream_id = count;
         let record = StreamRecord {
@@ -146,7 +150,9 @@ impl VestingStreamContract {
             is_cancelled: false,
         };
 
-        env.storage().persistent().set(&DataKey::Stream(stream_id), &record);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Stream(stream_id), &record);
 
         // Emit creation event
         env.events().publish(
@@ -183,7 +189,9 @@ impl VestingStreamContract {
                 .get(&DataKey::StreamCounter)
                 .unwrap_or(0u64);
             count += 1;
-            env.storage().persistent().set(&DataKey::StreamCounter, &count);
+            env.storage()
+                .persistent()
+                .set(&DataKey::StreamCounter, &count);
 
             let stream_id = count;
             let record = StreamRecord {
@@ -200,10 +208,16 @@ impl VestingStreamContract {
                 is_cancelled: false,
             };
 
-            env.storage().persistent().set(&DataKey::Stream(stream_id), &record);
+            env.storage()
+                .persistent()
+                .set(&DataKey::Stream(stream_id), &record);
 
             env.events().publish(
-                (symbol_short!("created"), sender.clone(), stream.recipient.clone()),
+                (
+                    symbol_short!("created"),
+                    sender.clone(),
+                    stream.recipient.clone(),
+                ),
                 (stream_id, stream.amount, stream.token.clone()),
             );
 
@@ -231,11 +245,17 @@ impl VestingStreamContract {
         }
 
         record.claimed_amount += claimable;
-        env.storage().persistent().set(&DataKey::Stream(stream_id), &record);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Stream(stream_id), &record);
 
         // Transfer claimable tokens to recipient
         let token_client = token::Client::new(&env, &record.token);
-        token_client.transfer(&env.current_contract_address(), &record.recipient, &claimable);
+        token_client.transfer(
+            &env.current_contract_address(),
+            &record.recipient,
+            &claimable,
+        );
 
         // Emit withdrawal event
         env.events().publish(
@@ -276,7 +296,9 @@ impl VestingStreamContract {
 
         record.claimed_amount = unlocked;
         record.is_cancelled = true;
-        env.storage().persistent().set(&DataKey::Stream(stream_id), &record);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Stream(stream_id), &record);
 
         let token_client = token::Client::new(&env, &record.token);
 

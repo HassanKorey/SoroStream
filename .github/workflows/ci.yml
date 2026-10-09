@@ -1,0 +1,122 @@
+name: SoroStream CI Quality Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  contract-quality:
+    name: Soroban Smart Contracts (Rust)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy, rustfmt
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            contracts/vesting_stream/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('contracts/vesting_stream/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cargo fmt check
+        working-directory: contracts/vesting_stream
+        run: cargo fmt --check
+
+      - name: Cargo clippy check
+        working-directory: contracts/vesting_stream
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Run Soroban contract unit tests
+        working-directory: contracts/vesting_stream
+        run: cargo test --verbose
+
+  backend-quality:
+    name: FastAPI Backend & Security Suite (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff mypy pytest pytest-asyncio
+
+      - name: Run Ruff Linter
+        working-directory: backend
+        run: ruff check app tests
+
+      - name: Run Pytest (API & Security Attack Vectors)
+        working-directory: backend
+        run: pytest -v
+
+  sdk-quality:
+    name: TypeScript Client SDK (@sorostream/sdk)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: sdk/package-lock.json
+
+      - name: Install SDK dependencies
+        working-directory: sdk
+        run: npm ci
+
+      - name: Build TypeScript SDK
+        working-directory: sdk
+        run: npm run build
+
+      - name: Run SDK Unit Tests
+        working-directory: sdk
+        run: npm test
+
+  frontend-quality:
+    name: BUX Frontend Web Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend dependencies
+        working-directory: frontend
+        run: npm ci || npm install
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build

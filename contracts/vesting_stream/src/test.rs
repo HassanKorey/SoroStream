@@ -8,7 +8,10 @@ use soroban_sdk::{
     Address, Env,
 };
 
-fn create_token_contract<'a>(e: &Env, admin: &Address) -> (TokenClient<'a>, StellarAssetClient<'a>) {
+fn create_token_contract<'a>(
+    e: &Env,
+    admin: &Address,
+) -> (TokenClient<'a>, StellarAssetClient<'a>) {
     let sac = e.register_stellar_asset_contract_v2(admin.clone());
     (
         TokenClient::new(e, &sac.address()),
@@ -135,10 +138,7 @@ fn test_create_and_linear_vesting() {
     assert_eq!(setup.contract_client.get_stream_count(), 1);
 
     // Contract received escrow
-    assert_eq!(
-        setup.token_client.balance(&setup.contract_id),
-        amount
-    );
+    assert_eq!(setup.token_client.balance(&setup.contract_id), amount);
 
     // 1. Before cliff (t = 1500): 0 unlocked, 0 claimable
     setup.env.ledger().set_timestamp(1_500);
@@ -212,7 +212,9 @@ fn test_cancel_revocable_stream() {
 
     // Cancel halfway at t = 3000 (50% unlocked)
     setup.env.ledger().set_timestamp(3_000);
-    setup.contract_client.cancel_stream(&setup.sender, &stream_id);
+    setup
+        .contract_client
+        .cancel_stream(&setup.sender, &stream_id);
 
     // Recipient received 50% = 50_000_000
     assert_eq!(setup.token_client.balance(&setup.recipient), 50_000_000);
@@ -229,7 +231,9 @@ fn test_cancel_revocable_stream() {
     assert_eq!(info.claimable_amount, 0);
 
     // Subsequent cancel or withdraw fails
-    let res_cancel = setup.contract_client.try_cancel_stream(&setup.sender, &stream_id);
+    let res_cancel = setup
+        .contract_client
+        .try_cancel_stream(&setup.sender, &stream_id);
     assert!(res_cancel.is_err());
 
     let res_withdraw = setup.contract_client.try_withdraw(&stream_id);
@@ -252,7 +256,9 @@ fn test_non_revocable_stream_cannot_be_cancelled() {
     );
 
     setup.env.ledger().set_timestamp(2_500);
-    let res = setup.contract_client.try_cancel_stream(&setup.sender, &stream_id);
+    let res = setup
+        .contract_client
+        .try_cancel_stream(&setup.sender, &stream_id);
     assert!(res.is_err());
 }
 
@@ -316,7 +322,9 @@ fn test_batch_stream_creation() {
         revocable: false,
     });
 
-    let ids = setup.contract_client.create_stream_batch(&setup.sender, &batch);
+    let ids = setup
+        .contract_client
+        .create_stream_batch(&setup.sender, &batch);
     assert_eq!(ids.len(), 2);
     assert_eq!(ids.get(0).unwrap(), 1);
     assert_eq!(ids.get(1).unwrap(), 2);
