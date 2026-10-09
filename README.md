@@ -54,38 +54,6 @@ $$\text{Claimable}(t) = \text{Unlocked}(t) - A_{\text{claimed}}$$
 
 ---
 
-## 📂 Repository Structure
-
-```
-SoroStream/
-├── .github/workflows/ci.yml       # Automated quality gates (Rust, Python, Node)
-├── contracts/vesting_stream/      # Core Soroban Rust smart contracts
-│   ├── src/lib.rs                 # Contract logic, DataKeys, linear math
-│   └── src/test.rs                # Comprehensive Rust unit test suite
-├── backend/                       # FastAPI RPC indexer and webhook service
-│   ├── app/main.py                # REST endpoints, OpenAPI schemas
-│   ├── app/models.py              # Pydantic models & SQLite storage
-│   ├── app/soroban_client.py      # Soroban RPC client and event listener
-│   ├── app/webhook_worker.py      # Background webhook dispatcher
-│   └── tests/                     # Security vectors & API test suite
-├── sdk/                           # Official TypeScript SDK (@sorostream/sdk)
-│   ├── src/client.ts              # Contract RPC wrapper
-│   ├── src/math.ts                # Pure TypeScript vesting calculations
-│   └── src/types.ts               # Shared interfaces and types
-├── frontend/                      # BUX-inspired Next.js Web3 dashboard
-│   ├── src/components/            # Bento grid, visualizer, live ticker
-│   ├── src/pages/                 # Dashboard, stream details, create wizard
-│   └── src/styles/                # Glassmorphic Tailwind theme
-├── scripts/
-│   └── deploy_testnet.sh          # Automated testnet deploy & Friendbot funding
-├── CONTRIBUTING.md
-├── MAINTAINERS.md
-├── SECURITY.md
-└── README.md
-```
-
----
-
 ## 🚀 Quick Start Guide
 
 ### 1. Smart Contracts (Rust)
