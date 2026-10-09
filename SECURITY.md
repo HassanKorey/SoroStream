@@ -1,7 +1,7 @@
 # Security Policy & Audit Vector Specifications
 
 Security is paramount for SoroStream. This document outlines vulnerability disclosure procedures and documents the formal attack simulation vectors verified in the protocol test suite.
-
+  
 ---
 
 ## 🔒 Reporting a Vulnerability
