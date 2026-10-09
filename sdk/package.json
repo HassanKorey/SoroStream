@@ -1,0 +1,25 @@
+{
+  "name": "@sorostream/sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript SDK for SoroStream Soroban Token Vesting & Asset Streaming Protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node test/math.test.js"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "streaming",
+    "vesting",
+    "sorostream",
+    "defi"
+  ],
+  "author": "SoroStream Protocol Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
