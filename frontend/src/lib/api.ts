@@ -37,7 +37,7 @@ export interface TokenVerification {
   total_supply?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:8000";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "";
 
 // Fallback demo streams in case backend is loading
 export const DEMO_STREAMS: StreamRecord[] = [

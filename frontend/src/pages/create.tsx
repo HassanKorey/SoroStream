@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck, Sparkles, AlertCircle } from "lucide-react";
 import { connectFreighter } from "../lib/freighter";
+import { API_BASE_URL } from "../lib/api";
 
 export default function CreateStreamWizard() {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function CreateStreamWizard() {
       const endTime = startTime + totalDays * 86400;
 
       // Call backend or contract
-      const res = await fetch("http://localhost:8000/api/streams", {
+      const res = await fetch(`${API_BASE_URL}/api/streams`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

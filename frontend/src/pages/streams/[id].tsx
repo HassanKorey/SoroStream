@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { ArrowLeft, Share2, AlertOctagon, CheckCircle2, Shield, Copy, Check } from "lucide-react";
-import { fetchStreamById, StreamRecord, DEMO_STREAMS } from "../../lib/api";
+import { fetchStreamById, StreamRecord, DEMO_STREAMS, API_BASE_URL } from "../../lib/api";
 import { StreamTicker } from "../../components/StreamTicker";
 import { VestingVisualizer } from "../../components/VestingVisualizer";
 import { connectFreighter } from "../../lib/freighter";
@@ -35,7 +35,7 @@ export default function StreamDetailPage() {
     try {
       await connectFreighter();
       // Call backend withdraw or contract invocation
-      const res = await fetch(`http://localhost:8000/api/streams/${stream.id}/withdraw`, {
+      const res = await fetch(`${API_BASE_URL}/api/streams/${stream.id}/withdraw`, {
         method: "POST",
       }).catch(() => null);
 
@@ -62,7 +62,7 @@ export default function StreamDetailPage() {
     setIsCancelling(true);
     try {
       await connectFreighter();
-      const res = await fetch(`http://localhost:8000/api/streams/${stream.id}/cancel`, {
+      const res = await fetch(`${API_BASE_URL}/api/streams/${stream.id}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sender: stream.sender }),
