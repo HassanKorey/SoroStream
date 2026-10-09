@@ -14,13 +14,6 @@
 
 **SoroStream** is a native, trustless asset streaming and vesting escrow protocol built on **Stellar** smart contracts (Soroban). It enables DAOs, corporate treasuries, Web3 founders, and grant allocators to lock tokens (XLM, USDC, or custom SEP-41 Soroban Asset Contracts) and stream them continuously to recipients second-by-second over customizable schedules with optional cliff milestones and revocation controls.
 
-### Key Highlights
-- **Sub-Second Precision**: Tokens unlock linearly every ledger second with zero gas state updates required.
-- **Cliff Vesting Protection**: Guarantee lockups until cliff milestones are reached.
-- **Atomic Batch Creation**: Onboard entire rosters or DAO distributions in a single transaction.
-- **BUX-Inspired Glassmorphic UI**: High-contrast dark canvas (`#090D16`), vibrant emerald accents (`#10B981`), Bento Grid metric layouts, and live per-second tickers.
-- **Multi-Token Verification**: Native support for Soroban Asset Contracts conforming to SEP-41.
-- **Security-First**: Formally verified against cliff bypass, double-withdraw race conditions, and unauthorized cancellations.
 
 ---
 
