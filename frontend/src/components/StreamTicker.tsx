@@ -58,16 +58,33 @@ export const StreamTicker: React.FC<StreamTickerProps> = ({
   const isBeforeCliff = now < cliff_time && !is_cancelled;
   const isFullyVested = now >= end_time && !is_cancelled;
 
+  // Real-time flow rates
+  const duration = Math.max(1, end_time - start_time);
+  const ratePerSecond = totalTokens / duration;
+  const ratePerDay = ratePerSecond * 86400;
+
+  // Countdown calculations
+  const timeToCliffSeconds = Math.max(0, cliff_time - now);
+  const formatCountdown = (totalSec: number) => {
+    const days = Math.floor(totalSec / 86400);
+    const hours = Math.floor((totalSec % 86400) / 3600);
+    const minutes = Math.floor((totalSec % 3600) / 60);
+    const seconds = totalSec % 60;
+    if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+    return `${minutes}m ${seconds}s`;
+  };
+
   return (
-    <div className="bux-card p-6 sm:p-8 relative overflow-hidden group">
+    <div className="bux-card p-6 sm:p-8 relative overflow-hidden group border border-white/10 hover:border-emerald-500/30 transition-all duration-300">
       {/* Background glow */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all" />
+      <div className="absolute top-0 right-0 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-500" />
 
       {/* Header bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-white/10">
         <div className="flex items-center space-x-2.5">
           <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping opacity-75" />
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-emerald-400">
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-emerald-400 bux-mono">
             Per-Second Vesting Ticker
           </h3>
         </div>
@@ -75,20 +92,21 @@ export const StreamTicker: React.FC<StreamTickerProps> = ({
         {/* Live status badge */}
         <div>
           {is_cancelled ? (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20 bux-mono">
               ● Stream Revoked
             </span>
           ) : isBeforeCliff ? (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              ⏳ Cliff Lockup Active
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 bux-mono flex items-center space-x-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Cliff Lockup: {formatCountdown(timeToCliffSeconds)}</span>
             </span>
           ) : isFullyVested ? (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1 bux-mono">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>★ 100% Vested</span>
             </span>
           ) : (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1 bux-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block mr-1 animate-pulse" />
               <span>● Live Streaming</span>
             </span>
@@ -98,29 +116,35 @@ export const StreamTicker: React.FC<StreamTickerProps> = ({
 
       {/* Hero Live Counter */}
       <div className="my-8">
-        <span className="text-xs uppercase tracking-wider text-gray-400 font-medium">
+        <span className="text-xs uppercase tracking-wider text-gray-400 font-medium bux-mono">
           Real-Time Claimable Balance
         </span>
         <div className="flex items-baseline space-x-3 mt-1">
           <div className="text-5xl sm:text-6xl font-black text-white bux-mono tracking-tight drop-shadow-sm">
             {claimableTokens.toFixed(6)}
           </div>
-          <span className="text-2xl font-bold text-emerald-400">{token_symbol}</span>
+          <span className="text-2xl font-bold text-emerald-400 bux-mono">{token_symbol}</span>
         </div>
-        <p className="text-xs text-gray-400 bux-serif-accent mt-2">
-          Updating synchronously every Stellar ledger second.
-        </p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-400">
+          <p className="bux-serif-accent">
+            Updating synchronously every Stellar ledger second.
+          </p>
+          <span className="text-gray-500">•</span>
+          <p className="bux-mono text-emerald-400 font-medium">
+            Flow Rate: +{ratePerSecond.toFixed(6)} {token_symbol}/sec (~{ratePerDay.toFixed(2)} / day)
+          </p>
+        </div>
       </div>
 
       {/* Real-time Progress Bar */}
       <div className="space-y-2 my-6">
-        <div className="flex justify-between text-xs text-gray-300 font-medium">
+        <div className="flex justify-between text-xs text-gray-300 font-medium bux-mono">
           <span>Unlocked Progress: {percentVested.toFixed(2)}%</span>
           <span>
             {unlockedTokens.toFixed(2)} / {totalTokens.toFixed(2)} {token_symbol}
           </span>
         </div>
-        <div className="relative w-full h-3 rounded-full bg-white/5 border border-white/10 overflow-hidden">
+        <div className="relative w-full h-3.5 rounded-full bg-white/5 border border-white/10 overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-lime-400 transition-all duration-300 rounded-full shadow-glow-emerald"
             style={{ width: `${percentVested}%` }}
