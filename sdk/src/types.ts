@@ -59,3 +59,38 @@ export interface SoroStreamClientConfig {
   rpcUrl?: string;
   contractId?: string;
 }
+
+export interface StreamCreationOptions {
+  sender: string;
+  recipient: string;
+  token: string;
+  amountTokens: number | string;
+  durationDays: number;
+  cliffDays?: number;
+  startDelayDays?: number;
+  revocable?: boolean;
+  tokenDecimals?: number;
+}
+
+export interface BalanceResult {
+  account: string;
+  token: string;
+  balance: bigint;
+  decimals: number;
+  formatted: string;
+}
+
+export interface FreighterSigner {
+  signTransaction(
+    xdr: string,
+    opts?: { networkPassphrase?: string; accountToSign?: string }
+  ): Promise<string>;
+  getUserInfo?(): Promise<{ publicKey?: string }>;
+  isConnected?(): Promise<boolean>;
+}
+
+export interface TransactionPayload {
+  contractId: string;
+  method: string;
+  args: Record<string, any>;
+}
