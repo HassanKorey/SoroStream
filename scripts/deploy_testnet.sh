@@ -97,6 +97,25 @@ ${STELLAR_BIN} contract invoke \
 
 echo "[+] Contract initialized successfully!"
 
+# 6b. Verification: Query admin and initial stream count
+echo "[*] Verifying deployed contract state on testnet..."
+VERIFIED_ADMIN=$(${STELLAR_BIN} contract invoke \
+    --id "${CONTRACT_ID}" \
+    --source "${IDENTITY_NAME}" \
+    --network "${NETWORK}" \
+    -- \
+    get_admin 2>/dev/null || echo "UNVERIFIED")
+
+STREAM_COUNT=$(${STELLAR_BIN} contract invoke \
+    --id "${CONTRACT_ID}" \
+    --source "${IDENTITY_NAME}" \
+    --network "${NETWORK}" \
+    -- \
+    get_stream_count 2>/dev/null || echo "0")
+
+echo "[+] On-chain Admin: ${VERIFIED_ADMIN}"
+echo "[+] Initial Stream Count: ${STREAM_COUNT}"
+
 # 7. Write deployment configuration artifact
 DEPLOY_ENV_FILE="${ROOT_DIR}/.env.testnet"
 cat <<EOF > "${DEPLOY_ENV_FILE}"
@@ -106,6 +125,7 @@ SOROBAN_RPC_URL=${RPC_URL}
 SOROBAN_NETWORK_PASSPHRASE="${NETWORK_PASSPHRASE}"
 SOROSTREAM_CONTRACT_ID=${CONTRACT_ID}
 SOROSTREAM_ADMIN_ADDRESS=${DEPLOYER_PUBKEY}
+EXPLORER_URL=https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}
 DEPLOYED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 EOF
 
@@ -119,10 +139,13 @@ NEXT_PUBLIC_SOROBAN_RPC_URL=${RPC_URL}
 NEXT_PUBLIC_SOROBAN_NETWORK_PASSPHRASE="${NETWORK_PASSPHRASE}"
 NEXT_PUBLIC_SOROSTREAM_CONTRACT_ID=${CONTRACT_ID}
 NEXT_PUBLIC_BACKEND_API_URL=http://localhost:8000
+NEXT_PUBLIC_STELLAR_EXPERT_URL=https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}
 EOF
     echo "[+] Frontend configuration updated: ${FRONTEND_ENV}"
 fi
 
 echo "=========================================================="
 echo "  Deployment Complete! Ready for Streaming Escrows."
+echo "  Stellar Expert Explorer:"
+echo "  https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}"
 echo "=========================================================="
