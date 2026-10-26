@@ -95,6 +95,17 @@ class StreamEventRecord(BaseModel):
     tx_hash: str | None = Field(None, description="Stellar transaction hash", json_schema_extra={"example": "a9b3...ef41"})
 
 
+class EventIngestRequest(BaseModel):
+    event_type: str = Field(..., description="Event type name: StreamCancelled, created, withdraw", json_schema_extra={"example": "StreamCancelled"})
+    stream_id: int = Field(..., description="Target stream ID", json_schema_extra={"example": 1})
+    actor: str = Field(..., description="Address that initiated the event", json_schema_extra={"example": "GA2C5RFILRUKMQDUZDIIXGPOABGWNESHSQYDCJZRA3W563O7QDZ3U4NO"})
+    amount: int = Field(default=0, description="Amount involved in stroops")
+    claimable_to_recipient: int = Field(default=0, description="Tokens claimed at cancellation")
+    refund_to_sender: int = Field(default=0, description="Tokens refunded to sender")
+    timestamp: int | None = Field(default=None, description="Event ledger timestamp")
+    tx_hash: str | None = Field(default=None, description="Stellar transaction hash")
+
+
 class TokenVerificationResponse(BaseModel):
     address: str = Field(..., description="Token contract address", json_schema_extra={"example": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"})
     symbol: str = Field(..., description="SAC token symbol", json_schema_extra={"example": "USDC"})
