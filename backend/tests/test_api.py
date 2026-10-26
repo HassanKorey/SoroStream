@@ -161,8 +161,6 @@ async def test_event_listener_tracks_stream_cancelled():
     Verifies that on-chain StreamCancelled events update the SQLite database state,
     mark is_cancelled = 1, record an audit event, and update stream view.
     """
-    from app.main import soroban_client
-
     now = int(time.time())
     payload = {
         "sender": "GASENDERTESTEVENTLISTENER111111111111111111111111111111111",
