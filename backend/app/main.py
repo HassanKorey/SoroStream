@@ -15,6 +15,7 @@ from fastapi import FastAPI, HTTPException, Path, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.models import (
+    EventIngestRequest,
     ProtocolMetricsResponse,
     StreamBatchCreateRequest,
     StreamCreateRequest,
@@ -668,6 +669,36 @@ async def get_events(
     conn.close()
 
     return [StreamEventRecord(**dict(r)) for r in rows]
+
+
+@app.post(
+    "/api/events/ingest",
+    status_code=status.HTTP_200_OK,
+    tags=["Events"],
+    summary="Ingest On-Chain Contract Event (Issue #6)",
+    description="Processes raw or indexed Soroban contract events, specifically tracking StreamCancelled to mark stream revocation in SQLite."
+)
+async def ingest_contract_event(req: EventIngestRequest):
+    result = soroban_client.ingest_event(req.model_dump())
+    if result.get("status") == "error":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=result.get("message", "Event ingestion failed")
+        )
+    if req.event_type.lower() in ("streamcancelled", "cancel", "cancelled"):
+        await webhook_worker.dispatch_event(
+            event_type="cancelled",
+            stream_id=req.stream_id,
+            recipient=req.actor,
+            payload={
+                "event": "StreamCancelled",
+                "stream_id": req.stream_id,
+                "actor": req.actor,
+                "claimable_to_recipient": req.claimable_to_recipient,
+                "refund_to_sender": req.refund_to_sender,
+            }
+        )
+    return result
 
 
 @app.post(
