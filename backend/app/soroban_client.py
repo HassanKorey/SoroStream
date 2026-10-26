@@ -123,3 +123,87 @@ class SorobanClient:
                 (stream_id, event_type, actor, amount, timestamp, tx_hash)
             )
         conn.close()
+
+    def handle_stream_cancelled(
+        self,
+        stream_id: int,
+        actor: str,
+        claimable_to_recipient: int = 0,
+        refund_to_sender: int = 0,
+        timestamp: int | None = None,
+        tx_hash: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Hardened event handler for StreamCancelled contract events.
+        Parses revocation events, marks stream cancelled in SQLite storage,
+        updates claimed amount, logs event, and triggers audit consistency.
+        """
+        ts = timestamp if timestamp is not None else int(time.time())
+        conn = get_db_connection()
+        try:
+            with conn:
+                cur = conn.execute("SELECT * FROM streams WHERE id = ?", (stream_id,))
+                row = cur.fetchone()
+                if not row:
+                    logger.warning(f"Stream #{stream_id} not found during StreamCancelled event ingestion.")
+                    return {"status": "error", "message": f"Stream #{stream_id} not found"}
+
+                new_claimed = row["claimed_amount"] + claimable_to_recipient
+                conn.execute(
+                    "UPDATE streams SET is_cancelled = 1, claimed_amount = ? WHERE id = ?",
+                    (new_claimed, stream_id),
+                )
+                conn.execute(
+                    """
+                    INSERT INTO stream_events (stream_id, event_type, actor, amount, timestamp, tx_hash)
+                    VALUES (?, 'StreamCancelled', ?, ?, ?, ?)
+                    """,
+                    (stream_id, actor, claimable_to_recipient, ts, tx_hash),
+                )
+            return {
+                "status": "success",
+                "stream_id": stream_id,
+                "event_type": "StreamCancelled",
+                "actor": actor,
+                "claimable_to_recipient": claimable_to_recipient,
+                "refund_to_sender": refund_to_sender,
+                "timestamp": ts,
+                "tx_hash": tx_hash,
+            }
+        finally:
+            conn.close()
+
+    def ingest_event(self, event_data: dict[str, Any]) -> dict[str, Any]:
+        """
+        Dispatches incoming on-chain Soroban contract events to their respective handlers.
+        Recognizes 'StreamCancelled', 'cancel', 'withdraw', and 'created'.
+        """
+        event_type = event_data.get("event_type") or event_data.get("type", "")
+        stream_id = int(event_data.get("stream_id", 0))
+        actor = event_data.get("actor") or event_data.get("sender") or ""
+        amount = int(event_data.get("amount", 0))
+        claimable = int(event_data.get("claimable_to_recipient", amount))
+        refund = int(event_data.get("refund_to_sender", 0))
+        ts = event_data.get("timestamp")
+        tx_hash = event_data.get("tx_hash")
+
+        if event_type.lower() in ("streamcancelled", "cancel", "cancelled"):
+            return self.handle_stream_cancelled(
+                stream_id=stream_id,
+                actor=actor,
+                claimable_to_recipient=claimable,
+                refund_to_sender=refund,
+                timestamp=ts,
+                tx_hash=tx_hash,
+            )
+        else:
+            ts_val = ts if ts is not None else int(time.time())
+            self.record_event_in_db(
+                stream_id=stream_id,
+                event_type=event_type,
+                actor=actor,
+                amount=amount,
+                timestamp=ts_val,
+                tx_hash=tx_hash,
+            )
+            return {"status": "success", "stream_id": stream_id, "event_type": event_type}

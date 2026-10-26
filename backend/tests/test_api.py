@@ -152,3 +152,63 @@ async def test_token_verification_and_webhooks():
         res_wh = await ac.post("/api/webhooks/subscribe", json=wh_payload)
         assert res_wh.status_code == 201
         assert res_wh.json()["webhook_url"] == "https://example.com/stream-hook"
+
+
+@pytest.mark.asyncio
+async def test_event_listener_tracks_stream_cancelled():
+    """
+    Validates Issue #6: Event listener tracking StreamCancelled events.
+    Verifies that on-chain StreamCancelled events update the SQLite database state,
+    mark is_cancelled = 1, record an audit event, and update stream view.
+    """
+    from app.main import soroban_client
+
+    now = int(time.time())
+    payload = {
+        "sender": "GASENDERTESTEVENTLISTENER111111111111111111111111111111111",
+        "recipient": "GARECIPIENTTESTEVENTLISTENER222222222222222222222222222222",
+        "token": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+        "amount": 25_000_000,
+        "start_time": now - 100,
+        "cliff_time": now - 50,
+        "end_time": now + 200,
+        "revocable": True,
+    }
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # Create stream
+        res = await ac.post("/api/streams", json=payload)
+        assert res.status_code == 201
+        stream_id = res.json()["id"]
+
+        # Ingest a StreamCancelled contract event via listener API
+        event_payload = {
+            "event_type": "StreamCancelled",
+            "stream_id": stream_id,
+            "actor": "GASENDERTESTEVENTLISTENER111111111111111111111111111111111",
+            "amount": 5_000_000,
+            "claimable_to_recipient": 5_000_000,
+            "refund_to_sender": 20_000_000,
+            "timestamp": now,
+            "tx_hash": "tx_test_hash_cancellation_123456",
+        }
+        res_event = await ac.post("/api/events/ingest", json=event_payload)
+        assert res_event.status_code == 200
+        event_res = res_event.json()
+        assert event_res["status"] == "success"
+        assert event_res["event_type"] == "StreamCancelled"
+
+        # Verify stream is now cancelled in storage and query view
+        res_get = await ac.get(f"/api/streams/{stream_id}")
+        assert res_get.status_code == 200
+        stream = res_get.json()
+        assert stream["is_cancelled"] is True
+        assert stream["status"] == "cancelled"
+
+        # Verify event audit trail recorded the StreamCancelled event
+        res_audit = await ac.get(f"/api/events?stream_id={stream_id}")
+        assert res_audit.status_code == 200
+        events = res_audit.json()
+        event_names = [e["event_type"] for e in events]
+        assert "StreamCancelled" in event_names
