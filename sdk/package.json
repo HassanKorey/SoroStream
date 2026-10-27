@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "node test/math.test.js"
+    "test": "node test/math.test.js && node test/client.test.js"
   },
   "keywords": [
     "stellar",
