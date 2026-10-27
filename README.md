@@ -31,7 +31,7 @@
 | Name | Role | GitHub | Contact |
 | :--- | :--- | :--- | :--- |
 | Hassan Akorede (EDUN) | Lead Architect | [@HassanKorey](https://github.com/HassanKorey) | Telegram: `@HassanKorey` |
-| Co-Maintainer | Smart Contract Reviewer | [@CoMaintainer](https://github.com/CoMaintainer) | Discord: `comaintainer#0001` |
+| Co-Maintainer | Smart Contract Reviewer | [@OTimileyin](https://github.com/OTimileyin) | Discord: `@Tim` |
 
 ---
 
